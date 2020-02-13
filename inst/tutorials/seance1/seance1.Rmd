@@ -1,0 +1,398 @@
+---
+title: 'Programmation statistique en R : séance 1'
+output:
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Organisation et modalités de contrôle
+
+**Référence :** Statistiques avec R, PA. Cornillon, A. Guyader, F. Husson, N. Jégou, J. Josse, M. Kloareg, E. Matzner-Léber, L. Rouviére, Presses Universitaire de Rennes (15 euros)
+
+**Organisation :** 10 séances de TP de 1h30 = 15h au total
+
+**Evaluation :**
+
+- 2 interrogations séances 3 et 9
+- 1 Devoir Surveillé séance 10
+
+MoyenneCC = 0.5 x IE1 + 0.5 x IE2
+
+Moyenne = (MoyenneCC + DevoirSurveillé) / 2
+
+## Introduction
+
+Langage R : langage de programmation statistique. 
+
+**Avantages :**
+
+- libre
+- bien adapté à la manipulation de données
+- de nombreux modules disponibles
+- de plus en plus utilisé (même en entreprise)
+- interfaçable avec de nombreux autres langages
+- possibilité de réaliser des graphiques de grande qualité : ggplot2, plotly
+- possibilité de générer des documents : RMarkdown
+- possibilité de générer des interface web : Shiny
+- innovation sur méthodes statistiques passe plus par R que par SAS aujourd'hui
+
+**Inconvénients :**
+
+- langage moins "carré" que certains autres du point de vue des puristes de la programmation : typage dynamique, ...
+- programme plus long à s'exécuter que dans certains autres langages : Python, Java, C++, 
+
+## Autre notion
+
+
+
+
+
+
+
+## Objets R
+
+### Création d'objets 
+
+La création d'un objet peut se faire par affection avec un des trois opérateurs "<-", "->" ou "="
+
+```{r cmd5}
+b <- 41.3 # crée l'objet b en lui donnant la valeur 41.3
+x <- b    # x reçoit la valeur b  
+x = b     # x reçoit la valeur b
+b -> x    # x reçoit la valeur b
+```
+
+Si l'objet n'existe pas, l'affectation le crée, sinon l'affectation écrase la valeur précédente. 
+
+On peut afficher x via la commande :
+```{r cmd6}
+print(x)
+```
+
+ou simplement par :
+```{r cmd7}
+x
+```
+
+Par défaut, R conserve en mémoire tous les objets créés. Pour connaître la liste des objets créés dans la session, on utilise :
+```{r cmd8}
+ls()
+objects()
+```
+
+Pour supprimer l'objet x on utilise :
+
+```{r cmd9}
+rm(x)
+```
+
+### Types d'objets
+
+Différents types d'objets (modes) existent :
+
+* null (objet vide) : `NULL`
+* logical (booléen) : `TRUE`, `FALSE` ou `T`, `F`
+* numeric (nombre réel) : 1, 2.341, pi, 1e-10
+* complex (nombre complexe) : 2+0i, 2i
+* character (chaéne de caractéres) : 'bonjour', "K"
+
+Pour connaître le mode d'un objet il suffit d'excuter la commande `mode(objet)` :
+```{r cmd10}
+x = 3
+mode(x)
+x = T 
+mode(x)
+x = "K"
+mode(x)
+```
+
+On peut tester l'appartenance d'un objet à un mode : 
+
+```{r cmd11}
+is.null(x)
+is.logical(x)
+is.numeric(x)
+is.complex(x)
+is.character(x)
+```
+
+Il est possible de convertir un objet x d'un mode à un autre de façon explicite :
+```{r cmd12}
+as.logical(x)
+as.numeric(x)
+as.complex(x)
+as.character(x)
+```
+
+Attention les conversions retournent toujours un résultat même s'il n'a pas sens :
+
+|De       | en        | Fonction     |   Conversions             |
+|---------|-----------|--------------|---------------------------|
+|logique  | numérique |  as.numeric  |  FALSE -> 0, TRUE -> 1 |
+|logique  | caractére |  as.character| FALSE -> "FALSE", TRUE -> "TRUE" |
+|caractère| numérique |  as.numeric  | "1","2", ... -> 1, 2, ... ; "A" -> NA |
+|caractère| logique   |  as.logical  | "FALSE", "F" -> FALSE ; "TRUE", "T" -> TRUE ; autres caractéres -> NA|
+|numérique| logique   |  as.logical  | 0 -> FALSE ; autres nombres -> TRUE |
+|numérique| caractére | as.character | 1, 2, ... -> "1", "2", ... |
+
+Un objet a deux attributs intrinsèques : son mode `mode()` et sa longueur `length()`.
+
+Il existe enfin des attributs spécifiques selon le type d'objet : `dim`, `dimnames`, `class`, `names`. La liste de ces attributs peut étre obtenue à l'aide de la commande `attributes(objet)`.
+
+### Valeurs manquantes
+
+Les valeurs manquantes sont codées par `NA`, qui a des régles de calcul spécifiques : 
+
+```{r cmd13}
+x <- NA
+x + 1
+```
+
+Pour savoir où se trouvent les valeurs manquantes d'un objet, on peut utiliser : 
+
+```{r cmd14}
+is.na(x)
+```
+
+On peut aussi avoir d'autres types de valeurs telles que Inf ou NaN (Not A Number) :
+
+```{r cmd15}
+exp(1e10)
+log(-2)
+```
+
+### Les vecteurs
+
+Différentes méthodes sont possibles pour construire un vecteur : 
+
+Fonction collecteur c :
+
+```{r cmd16}
+x <- c(5.6,3.45,-3.1,4.3) # vecteur numérique de 4 éléments
+x
+x <- c(x,3,c(12,8)) # vecteur à 7 éléments
+x
+x <- 2 # vecteur de longueur 1
+x
+```
+
+Opérateur séquence ":"
+
+```{r cmd17}
+1:12
+```
+
+Fonction seq : 
+
+```{r cmd18} 
+seq(1,6, by = 0.5)
+seq(1,6,length = 5)
+```
+
+Fonction rep :
+```{r}
+rep(1,4)
+rep(c(1,2),each = 3)
+```
+
+
+Fonction scan pour entrer les éléments au fur et à mesure : arrêt pour n fixé ou à l'apparition du premier blanc :
+
+```{r cmd19, eval=FALSE}
+note <- scan(n=3)
+12
+18
+15
+note
+```
+
+Vecteurs de caractères :
+
+```{r cmd20}
+x <- c("A","BB","C1")
+x
+x <- rep('A',5)
+```
+
+Concaténation à l'aide de la fonction paste :
+```{r cmd21}
+paste("X",1:5,sep="-")
+paste(c("X","Y"),1:5,"txt",sep=".")
+paste(c("X","Y"),1:5,sep=".",collapse = "+")
+```
+
+`collapse` rassemble tous les éléments en un vecteur de longueur 1.
+
+Pour l'extraction de sous-chaines de caractères on utilise la fonction `substr` :
+
+```{r cmd22}
+substr("freerider",5,9)
+```
+
+On peut générer des vecteurs logiques à l'aide des opérateurs logiques : ">", ">=", "<", "<=", "==", "!=", ...
+
+```{r cmd23}
+1 > 0 
+x = c(-2,5,-1,4,5)
+x > 0
+```
+
+La commande retourne un vecteur logique **de la méme dimension** que x.
+
+Lors d'opérations arithmétiques `TRUE` est converti en 1 et FALSE en 0.
+
+```{r cmd24}
+x <- c(-1,0,2)
+test <- x>1
+(1+x^2)*(x>1)
+```
+
+On peut utiliser les fonctions `all` ou `any`. `all` renvoie `TRUE` si tous les éléments satisfont la condition et `FALSE` sinon. `any` renvoie `TRUE` si au moins un élément satisfait la condition et `FALSE` sinon. 
+
+```{r cmd25}
+all(x>1)
+any(x>1)
+```
+
+La sélection d'une partie d'un vecteur s'opére à l'aide de l'opérateur `[ ]` :
+
+```{r cmd26}
+vecteurdeselection <- c(1,3)
+x[vecteurdeselection]   
+```
+
+Le vecteur de sélection peut être : 
+
+* un vecteur d'entiers positifs
+* un vecteur d'entiers négatifs
+* un vecteur logique
+
+La solution à partir d'un vecteur d'entiers positifs est la plus naturelle, les indices des élements à selectionner doivent être compris entre `1` et `length(x)`, la longueur du vecteur d'indices peut être quelconque.
+
+```{r cmd27}
+v <- 1:100 # entiers de 1 à 100
+v[6] # le sixiéme élement de v (l'indexation commence à 1)
+v[6:8] # les éléments de 6 à 8 de v
+v[c(6,6,1:2)] # 6éme, 6éme, 1er, 2éme
+v[10:1] # Du 10éme au 1er
+```
+
+La solution à partir d'entiers négatifs permet d'indiquer les élements à exclure :
+
+```{r cmd28}
+v[-(1:5)] # v sans les 5 premiers
+v[-c(1,5)] # v sans le premier et le cinquiéme
+```
+
+Sélection à partir d'un vecteur logique de même longueur que v :
+
+```{r cmd29}
+v <- 1:15
+print(v)
+v[v<5]
+v[(v<5)&(v>=12)] # & signifie "et"
+v[(v<5)|(v>=12)] # | signifie "ou"
+```
+
+On peut sélectionner les valeurs d'un vecteur à partir des valeurs d'un autre vecteur de même longueur : 
+
+```{r cmd30}
+Temp <- c(23, 28, 24, 32)
+O3 <- c(80, 102, 87, 124)
+O3[Temp>25]
+```
+
+Quelques cas pratiques :
+```{r cmd31}
+x <- c(45,NA,23,NA,NA,67)
+x
+x[is.na(x)] <- 0 # NA remplacés par 0
+x
+y <- c(-6,3,4,-2,-1,-7)
+y[y<0] <- -y[y<0] # valeurs négatives remplacées par leur opposé
+y
+```
+
+Equivalent ?
+```{r cmd32}
+y <- c(-6,3,4,-2,-1,-7)
+abs(y)
+```
+
+La recherche du min ou du max peut se faire comme suit :
+```{r cmd33}
+x = c(4,6,-1,7)
+which.min(x)
+which(x==min(x))
+(1:length(x))[x == min(x)]
+```
+
+
+## Exercice 1
+
+1. Créer un vecteur v comportant les entiers pairs de 2 à 40
+
+```{r exo1q1, exercise=TRUE}
+
+```
+
+2. Donner la longueur du vecteur v en utilisant la commande adéquate
+
+```{r exo1q2, exercise=TRUE}
+
+```
+
+3. L'opérateur %% donne le reste de la division entiére, commenter la commande v%%3
+
+```{r exo1q3, exercise=TRUE}
+
+```
+
+4. Afficher uniquement les éléments du vecteur v qui sont divisibles par 3
+
+```{r exo1q4, exercise=TRUE}
+
+```
+
+5. Afficher les éléments 1 à 4 du vecteur v
+
+```{r exo1q5, exercise=TRUE}
+
+```
+
+6. Répéter 3 fois le vecteur v
+
+```{r exo1q6, exercise=TRUE}
+
+```
+
+7. Afficher les éléments de v strictement supérieurs à 13 et inférieurs ou égaux à 28
+
+```{r exo1q7, exercise=TRUE}
+
+```
+
+8. Afficher tous les élements sauf les éléments 4 à 8 et l'élement 10 du vecteur v
+
+```{r exo1q8, exercise=TRUE}
+
+```
+
+9. Afficher le premier et le dernier élément de v
+
+```{r exo1q9, exercise=TRUE}
+
+```
+
+## Autre notions 
+
+DDDDD
+
+
