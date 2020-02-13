@@ -48,13 +48,6 @@ Langage R : langage de programmation statistique.
 - langage moins "carré" que certains autres du point de vue des puristes de la programmation : typage dynamique, ...
 - programme plus long à s'exécuter que dans certains autres langages : Python, Java, C++, 
 
-## Autre notion
-
-
-
-
-
-
 
 ## Objets R
 
