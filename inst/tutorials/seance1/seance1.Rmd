@@ -9,12 +9,21 @@ runtime: shiny_prerendered
 
 ```{r setup, include=FALSE}
 library(learnr)
-knitr::opts_chunk$set(echo = FALSE)
+library(gradethis)
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(exercise.checker = gradethis::grade_learnr)
 ```
 
-## Organisation et modalités de contrôle
+## Introduction
 
-**Référence :** Statistiques avec R, PA. Cornillon, A. Guyader, F. Husson, N. Jégou, J. Josse, M. Kloareg, E. Matzner-Léber, L. Rouviére, Presses Universitaire de Rennes (15 euros)
+**Références :** 
+
+- Site du livre R for data Science de Hardley Wickam (le must mais en anglais) :
+https://r4ds.had.co.nz
+- Doc très complète en Français sur R au goût du jour :
+https://larmarange.github.io/analyse-R/analyse-R.pdf, site web associé 
+https://larmarange.github.io/analyse-R
+- Statistiques avec R, PA. Cornillon, A. Guyader, F. Husson, N. Jégou, J. Josse, M. Kloareg, E. Matzner-Léber, L. Rouviére, Presses Universitaire de Rennes, livre plus anciens mais décrit bien les principaux objets manipulés en R
 
 **Organisation :** 10 séances de TP de 1h30 = 15h au total
 
@@ -27,11 +36,11 @@ MoyenneCC = 0.5 x IE1 + 0.5 x IE2
 
 Moyenne = (MoyenneCC + DevoirSurveillé) / 2
 
-## Introduction
+**Avantage et inconvenients**
 
 Langage R : langage de programmation statistique. 
 
-**Avantages :**
+*Avantages :*
 
 - libre
 - bien adapté à la manipulation de données
@@ -43,10 +52,18 @@ Langage R : langage de programmation statistique.
 - possibilité de générer des interface web : Shiny
 - innovation sur méthodes statistiques passe plus par R que par SAS aujourd'hui
 
-**Inconvénients :**
+*Inconvénients :*
 
 - langage moins "carré" que certains autres du point de vue des puristes de la programmation : typage dynamique, ...
 - programme plus long à s'exécuter que dans certains autres langages : Python, Java, C++, 
+
+
+**Notions abordées**
+
+1. Concepts
+2. Manipuler les données
+3. Représenter les données
+4. Programmer en R
 
 
 ## Objets R
@@ -86,17 +103,53 @@ Pour supprimer l'objet x on utilise :
 rm(x)
 ```
 
+Créer un objet nommé `y` et contenant la valeur 3, puis afficher `y`
+```{r mon-objet, exercise = TRUE}
+
+```
+
+Dans le code suivant on crée l'objet `z` comme suit : 
+```{r print_z}
+z = 9
+```
+
+
+```{r creation_z, eval = TRUE, echo = TRUE}
+z = 9
+```
+
+
+On souhaite afficher le contenu de l'objet `z`, corriger le code suivant : 
+```{r mon_z, exercise = TRUE, exercise.setup = "creation_z"}
+Z
+```
+
+
+```{r mon_z-hint}
+"R est casse dépendant ! Il fait la différence entre majuscule et minuscules pour les noms de variables"
+```
+
+```{r mon_z-solution}
+z
+```
+
+```{r mon_z-check}
+grade_code()
+```
+
+
+
 ### Types d'objets
 
 Différents types d'objets (modes) existent :
 
-* null (objet vide) : `NULL`
-* logical (booléen) : `TRUE`, `FALSE` ou `T`, `F`
-* numeric (nombre réel) : 1, 2.341, pi, 1e-10
-* complex (nombre complexe) : 2+0i, 2i
-* character (chaéne de caractéres) : 'bonjour', "K"
+* **null** (objet vide) : `NULL`
+* **logical** (booléen) : `TRUE`, `FALSE` ou `T`, `F`
+* **numeric** (nombre réel) : 1, 2.341, pi, 1e-10
+* **complex** (nombre complexe) : 2+0i, 2i
+* **character** (chaîne de caractères) : 'bonjour', "K"
 
-Pour connaître le mode d'un objet il suffit d'excuter la commande `mode(objet)` :
+Pour connaître le mode d'un objet il suffit d'exécuter la commande `mode(objet)` :
 ```{r cmd10}
 x = 3
 mode(x)
@@ -137,7 +190,42 @@ Attention les conversions retournent toujours un résultat même s'il n'a pas se
 
 Un objet a deux attributs intrinsèques : son mode `mode()` et sa longueur `length()`.
 
-Il existe enfin des attributs spécifiques selon le type d'objet : `dim`, `dimnames`, `class`, `names`. La liste de ces attributs peut étre obtenue à l'aide de la commande `attributes(objet)`.
+Il existe enfin des attributs spécifiques selon le type d'objet : `dim`, `dimnames`, `class`, `names`. La liste de ces attributs peut être obtenue à l'aide de la commande `attributes(objet)`.
+
+```{r q1, echo=FALSE}
+question("La fonction qui permet de  convertir une variable en numérique est :",
+  answer("is.numeric", message = "is.numeric retourne un booléen indiquant si la variable est numérique ou non"),
+  answer("as.numeric", correct = TRUE),
+  allow_retry = TRUE
+)
+```
+
+```{r q2, echo=FALSE}
+question("Que retourne la commande as.numeric('B')",
+  answer("2"),
+  answer("NA", correct = TRUE),
+    allow_retry = TRUE
+)
+```
+
+Compléter le code suivant pour obtenir le mode de `x` 
+```{r conversion, exercise = TRUE}
+x = "A"
+```
+
+```{r conversion-hint}
+"Penser à utiliser la fonction `mode`"
+```
+
+
+```{r conversion-solution}
+mode(x)
+```
+
+```{r conversion-check}
+grade_code()
+```
+
 
 ### Valeurs manquantes
 
@@ -161,6 +249,16 @@ exp(1e10)
 log(-2)
 ```
 
+Expliquer le résultat suivant, et corriger le code pour obtenir un résultat cohérent avec ce que disent les mathématiques : 
+```{r precision, exercise = TRUE}
+exp(1000)/(1 + exp(1000))
+```
+
+```{r precision-hint}
+exp(x)/(1 + exp(x)) = 1/(1 + exp(-x))
+```
+
+
 ### Les vecteurs
 
 Différentes méthodes sont possibles pour construire un vecteur : 
@@ -175,6 +273,7 @@ x
 x <- 2 # vecteur de longueur 1
 x
 ```
+
 
 Opérateur séquence ":"
 
@@ -196,15 +295,16 @@ rep(c(1,2),each = 3)
 ```
 
 
-Fonction scan pour entrer les éléments au fur et à mesure : arrêt pour n fixé ou à l'apparition du premier blanc :
+Créer le vecteur constitué des nombre pair de 8 à 24
+```{r exo-suite, exercise = TRUE}
 
-```{r cmd19, eval=FALSE}
-note <- scan(n=3)
-12
-18
-15
-note
 ```
+
+Créer le vecteur qui répéte une fois le chiffre 1, 2 fois le chiffre 2, ..., 10 fois le chiffre 10. Indice : l'argument each  dans la fonction rep peut être lui aussi un vecteur :
+```{r exo-rep, exercise = TRUE}
+
+```
+
 
 Vecteurs de caractères :
 
@@ -213,6 +313,17 @@ x <- c("A","BB","C1")
 x
 x <- rep('A',5)
 ```
+
+Lancer le code suivant, et adapter pour que l'alphabet soit répété quatre fois.
+```{r}
+letters
+```
+
+Le nombre d'élèment d'un vecteur peut être déterminé à l'aide de la fonction length : 
+```{r}
+length(letters)
+```
+
 
 Concaténation à l'aide de la fonction paste :
 ```{r cmd21}
@@ -223,11 +334,35 @@ paste(c("X","Y"),1:5,sep=".",collapse = "+")
 
 `collapse` rassemble tous les éléments en un vecteur de longueur 1.
 
-Pour l'extraction de sous-chaines de caractères on utilise la fonction `substr` :
+Créer la chaine de caratères "a + b + c + ... + z" :
+```{r alphabet, exercise = TRUE}
+
+```
+
+Créer le vecteur des chaînes de caractère  "a1.txt", "a2.txt", "b1.txt", "b2.txt", ... "z1.txt", "z2.txt" : 
+```{r alphabet2, exercice = TRUE}
+
+```
+Indice : s'aider de rep, et du fait que R recycle le vecteur plus court
+
+
+Pour l'extraction de sous-chaînes de caractères on utilise la fonction `substr` :
 
 ```{r cmd22}
 substr("freerider",5,9)
 ```
+
+La fonction nchar permet d'obtenir le nombre de carctères d'une chaîne de caractères : 
+```{r}
+nchar("freerider")
+```
+
+Dans le code suivant êtraire les trois dernières lettre de la variable `mot` sans compter à la main le nombre de caractères ...
+```{r extract, exercise = TRUE}
+mot = "statistique"
+
+```
+
 
 On peut générer des vecteurs logiques à l'aide des opérateurs logiques : ">", ">=", "<", "<=", "==", "!=", ...
 
@@ -237,13 +372,13 @@ x = c(-2,5,-1,4,5)
 x > 0
 ```
 
-La commande retourne un vecteur logique **de la méme dimension** que x.
+La commande retourne un vecteur logique **de la même dimension** que x.
 
 Lors d'opérations arithmétiques `TRUE` est converti en 1 et FALSE en 0.
 
 ```{r cmd24}
 x <- c(-1,0,2)
-test <- x>1
+x>1
 (1+x^2)*(x>1)
 ```
 
@@ -267,7 +402,7 @@ Le vecteur de sélection peut être :
 * un vecteur d'entiers négatifs
 * un vecteur logique
 
-La solution à partir d'un vecteur d'entiers positifs est la plus naturelle, les indices des élements à selectionner doivent être compris entre `1` et `length(x)`, la longueur du vecteur d'indices peut être quelconque.
+La solution à partir d'un vecteur d'entiers positifs est la plus naturelle, les indices des éléments à sélectionner doivent être compris entre `1` et `length(x)`, la longueur du vecteur d'indices peut être quelconque.
 
 ```{r cmd27}
 v <- 1:100 # entiers de 1 à 100
@@ -372,7 +507,7 @@ which(x==min(x))
 
 ```
 
-8. Afficher tous les élements sauf les éléments 4 à 8 et l'élement 10 du vecteur v
+8. Afficher tous les éléments sauf les éléments 4 à 8 et l'élément 10 du vecteur v
 
 ```{r exo1q8, exercise=TRUE}
 
@@ -384,8 +519,6 @@ which(x==min(x))
 
 ```
 
-## Autre notions 
 
-DDDDD
 
 
